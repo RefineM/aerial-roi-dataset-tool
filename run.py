@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
 @Time: 2024/1/30 12:22
-@author: Junfan W
+@author: RefineM
 @file: run.py
 """
 import json
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     # 数据集路径
     dataset_dir = r'.\dataset\isprs_01'
     # CC空三解算导出的整个数据集的相机内外参文件
-    xml_path = dataset_dir + r"\Block_1 - AT - undistorted.xml"
+    xml_path = dataset_dir + r"\AT.xml"
     # CC三维建模导出的感兴趣区域的mesh路径
     obj_path = dataset_dir + r"\Model.obj"
     # CC三维建模导出的感兴趣区域的mesh元数据文件
@@ -122,14 +122,10 @@ if __name__ == "__main__":
            box = (bbox_min_x, bbox_min_y, bbox_max_x, bbox_max_y)
 
            # 判断包围盒
-           if bbox_min_x + tar_size_w < w[img_idx]:
-              pass
-           else:
+           if bbox_min_x + tar_size_w >= w[img_idx]:
               bbox_min_x = w[img_idx] - tar_size_w
 
-           if bbox_min_y + tar_size_h < h[img_idx]:
-              pass
-           else:
+           if bbox_min_y + tar_size_h >= h[img_idx]:
               bbox_min_y = h[img_idx] - tar_size_h
 
            box = (bbox_min_x, bbox_min_y, bbox_min_x + tar_size_w, bbox_min_y + tar_size_h)
