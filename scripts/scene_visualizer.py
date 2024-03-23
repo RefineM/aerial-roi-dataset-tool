@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
 @Time: 2024/2/3 0:52
-@author: Junfan W
+@author: RefineM
 @file: scene_visualizer.py
 
 """

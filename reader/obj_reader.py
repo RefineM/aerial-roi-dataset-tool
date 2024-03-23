@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """
 @Time: 2024/2/26 19:21
-@author: Junfan W
+@author: RefineM
 @file: obj_reader.py
 
 """
