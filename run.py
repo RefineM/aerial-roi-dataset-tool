@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     """参数设置"""
     # 数据集路径
-    dataset_dir = r'.\dataset\isprs_01'
+    dataset_dir = r'.\dataset\isprs_01_n'
     # CC空三解算导出的整个数据集的相机内外参文件
     xml_path = dataset_dir + r"\Block_1 - AT - undistorted.xml"
     # CC三维建模导出的感兴趣区域的mesh路径
@@ -35,6 +35,9 @@ if __name__ == "__main__":
 
     # 是否要获取掩膜，裁剪影像（在感兴趣目标在影像中的尺度很小的情况下可使用）
     if_mask_crop = True
+    # 裁剪后影像的目标尺寸
+    tar_size_w = 1200
+    tar_size_h = 1000
     # 影像裁剪后路径
     crop_folder = dataset_dir + r"\images_crop"
 
@@ -97,9 +100,6 @@ if __name__ == "__main__":
     """(可选)获取mask, 将感兴趣区域从影像中裁剪出来"""
     if if_mask_crop:
        crop_file_path = []
-       # 裁剪固定大小的影像：
-       tar_size_w = 1200
-       tar_size_h = 1000
        print("crop images")
        for img_idx in tqdm(range(len(new_path))):
            c2p = intrinsic_matrix[img_idx, :, :]  # c2p (3,3)

@@ -55,18 +55,18 @@ scripts
 run.py  
 ```
 ## 参数设置
-在`run.py`中，设置
+在`run.py`中，设置:
 * 数据集路径`dataset_dir`
 * 是否是单相机`if_single_camera`
 * 是否要裁剪影像`if_mask_crop`
+* 影像裁剪后的目标尺寸`tar_size_w` `tar_size_h`
 * 是否将场景规范化到指定范围`if_standardization`
-* 场景的目标半径`tar_radius`
-* 其余的输入和输出文件路径不用改变  
+* 场景的目标半径`tar_radius`  
 
-设置好后运行`run.py`即可。
+其余的输入和输出文件路径不用改变, 设置好后运行`run.py`即可。
 
 ## 注意事项
-* CC导出的是w2c的`3*3`旋转矩阵和相机在世界坐标系的`3*1`坐标, 在导出时选择`opencv`的相机坐标轴朝向`RDF`。
+* CC导出的是w2c的`3*3`旋转矩阵和相机在世界坐标系的`3*1`坐标, 在导出时选择`opencv`的相机坐标轴朝向(即`RDF`)。
 
 ## 实验
 * 数据集：  
