@@ -1,83 +1,84 @@
 # roi_dataset_flow
-## 目的
-从覆盖大面积测区的航空倾斜数据中选取感兴趣区域（ROI），通过影像可见性筛选和影像裁剪，制作包含ROI的小型数据集。便于后续针对单体建筑建模。
-* **可见性筛选**  
-  计算ROI的世界点在影像上是否可见，也就是计算ROI的世界点是否在影像的视场角范围之内。具体而言就是比较相机朝向与相机中心和世界点连线之间的夹角和相机视场角的大小关系。如果有占比大于设定阈值的ROI世界点在某幅影像上可见，那这幅影像就是所需要的。
-* **按照掩膜裁剪**  
-  经过可见性筛选后的影像只是包含了ROI，如果想要整幅影像着重关注ROI，减少其他部分的干扰（比如ROI在原始影像中只占很小的一部分，后续重建如果采取降采样，存在的有效的信息就很少，影响重建效果），需要根据ROI世界点计算其在像片上对应的像点，生成掩膜来裁剪影像。具体而言就是由ROI世界点乘以相机的外参（w2c）、内参（c2p）得到像点，根据像点坐标的最值生成包围盒，按照包围盒生成裁剪影像（采取了一定的策略使得裁剪后的影像有相同尺寸）。
-* **为新数据集生成类似nerf_studio和neuralangelo格式的相机参数文件（.json）**
-  ```
-   {
-    "camera_mode": ,
-    "camera_orientation": ,
-    "aabb_scale": ,
-    "aabb_range":,
-    "sphere_center":,
-    "sphere_radius":,
-    "frames": [
-    {
-      "file_path": ,
-      "intrinsic_matrix": ,
-      "transform_matrix": ,
-      "w": ,
-      "h": 
-    }, 
-    ...
-   }
-  ```
+## Purpose
+Select regions of interest (ROI) from large-area aerial oblique data to create a small dataset containing the ROI, facilitating subsequent modeling of individual buildings through image visibility screening and image cropping. 
 
-## 准备
-* 下载大型航空倾斜数据集  
-  例：ISPRS发布的EuroSDR Benchmark for Multi-Platform Photogrammetry
-  https://www2.isprs.org/commissions/comm2/icwg-2-1a/benchmark_main/
-* 在context capture master中新建工程，加载该数据集，进行空三解算（如果数据集质量较好，可略过刺点）。
-* 空三后导出相机参数文件（AT.xml）和去畸变的影像。
-* 新建三维重建项目，框选感兴趣区域，生成该区域的mesh（Model.obj）文件以及元数据文件（metadata.xml）。
-## 数据组织
-* 新建`dataset`文件夹，按照下面的格式组织：
+* **Visibility Screening**  
+   Determine whether the world points of the ROI are visible in the image by comparing the angle between the camera orientation and the line connecting the camera center and the world point with the size of the camera field of view. If the proportion of ROI world points visible on an image exceeds a set threshold, the image is deemed necessary.
+
+* **Mask-based Cropping**  
+   After visibility screening, the images contain only the ROI. To focus on the ROI and reduce interference from other parts (e.g., if the ROI occupies only a small portion of the original image, downsampling for subsequent reconstruction may result in loss of effective information affecting reconstruction effectiveness), calculate the corresponding image points based on the ROI world points multiplied by the camera's extrinsic (w2c) and intrinsic (c2p) parameters. Generate a bounding box based on the extremities of the image point coordinates, and use this bounding box to crop the image (adopting certain strategies to ensure the cropped images have the same dimensions).
+
+* **Generate camera parameter files for the new dataset in formats similar to nerf_studio and neuralangelo (.json)**
+
+```
+{
+  "camera_mode": ,
+  "camera_orientation": ,
+  "aabb_scale": ,
+  "aabb_range":,
+  "sphere_center":,
+  "sphere_radius":,
+  "frames": [
+  {
+    "file_path": ,
+    "intrinsic_matrix": ,
+    "transform_matrix": ,
+    "w": ,
+    "h": 
+  }, 
+  ...
+ }
+```
+
+## Preparation
+* Download a large-scale aerial oblique dataset.
+  Example: EuroSDR Benchmark for Multi-Platform Photogrammetry published by ISPRS.
+  [Link](https://www2.isprs.org/commissions/comm2/icwg-2-1a/benchmark_main/)
+* Create a new project in Context Capture Master, load the dataset, and perform aerial triangulation (skipping ground control points if the dataset quality is good).
+* Export camera parameter files (AT.xml) and undistorted images after aerial triangulation.
+* Create a 3D reconstruction project, select the area of interest, and generate the mesh (Model.obj) file and metadata file (metadata.xml) for that area.
+
+## Data Organization
+* Create a `dataset` folder and organize it as follows:
+
 ```
 dataset
 |_ dataset_01
-   |_ images        // 对ROI可视的影像存放路径，一开始是空的
-   |_ images_crop   // 依据ROI裁剪后的影像存放路径，一开始是空的
+   |_ images        // Path to store images visible to ROI initially empty
+   |_ images_crop   // Path to store cropped images based on ROI initially empty
    |_ AT.xml
    |_ metadata.xml
    |_ Model.obj
 ```
-## 代码结构
+
+## Code Structure
 ```
 reader
-|_ camera_reader.py // 读取相机参数（AT.xml）信息
-|_ obj_reader.py    // 读取mesh文件（Model.obj）信息
+|_ camera_reader.py // Reads camera parameters (AT.xml) information
+|_ obj_reader.py    // Reads mesh file (Model.obj) information
 scripts
-|_ tools.py  // 一些工具函数
-|_ scene_visualizer.py  // 将场景和位姿可视化
+|_ tools.py  // Some utility functions
+|_ scene_visualizer.py  // Visualizes the scene and poses
 run.py  
 ```
-## 参数设置
-在`run.py`中，设置:
-* 数据集路径`dataset_dir`
-* 是否是单相机`if_single_camera`
-* 是否要裁剪影像`if_mask_crop`
-* 影像裁剪后的目标尺寸`tar_size_w` `tar_size_h`
-* 是否将场景规范化到指定范围`if_standardization`
-* 场景的目标半径`tar_radius`  
 
-其余的输入和输出文件路径不用改变, 设置好后运行`run.py`即可。
+## Parameter Settings
+In `run.py`, set:
+* Dataset path `dataset_dir`
+* Whether it's a single camera `if_single_camera`
+* Whether to crop images `if_mask_crop`
+* Target size after image cropping `tar_size_w` `tar_size_h`
+* Whether to normalize the scene to a specified range `if_standardization`
+* Target radius of the scene `tar_radius`
 
-## 注意事项
-* CC导出的是w2c的`3*3`旋转矩阵和相机在世界坐标系的`3*1`坐标, 在导出时选择`opencv`的相机坐标轴朝向(即`RDF`)。
+Other input and output file paths need not be changed. Once set, run `run.py`.
 
-## 实验
-* 数据集：  
-Penta-Cam-Centre(8bit)  
-* 兴趣区mesh:
-![Alt text](assets/image-2.png)
-* 经过可见性筛选出的一张影像(8176 * 6132)：
-![Alt text](assets/image.png)
-* 裁剪其中的兴趣区(1200 * 1000)：
-![Alt text](assets/image-1.png)
-* 将场景缩放到半径为1的球体内，获得新影像的参数：
+## Considerations
+* Dataset: Penta-Cam-Centre(8bit)
+* ROI mesh: [Image](assets/image-2.png)
+* Example of an image after visibility screening (8176 * 6132): [Image](assets/image.png)
+* Cropped ROI from the image (1200 * 1000): [Image](assets/image-1.png)
+* Obtaining parameters for the new image by scaling the scene to a sphere with a radius of 1:
 ```
 "file_path": "images/001_009_145000282.jpg",
 "intrinsic_matrix": [
@@ -127,7 +128,7 @@ Penta-Cam-Centre(8bit)
 "h": 1000
 ```
 
-## 参考
-* 数据集信息：ISPRS
-* 可视化部分：NeRF++
-* json文件格式部分：NeRF_Studio Neuralangelo
+## References
+* Dataset Information: ISPRS
+* Visualization: NeRF++
+* JSON File Format: NeRF_Studio Neuralangelo
