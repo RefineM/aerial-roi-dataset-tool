@@ -65,7 +65,7 @@ run.py
 ## Parameter Settings
 In `run.py`, set:
 * Dataset path `dataset_dir`
-* Whether it's a single camera `if_single_camera`
+* Whether using a single camera `if_single_camera`
 * Whether to crop images `if_mask_crop`
 * Target size after image cropping `tar_size_w` `tar_size_h`
 * Whether to normalize the scene to a specified range `if_standardization`
@@ -74,11 +74,16 @@ In `run.py`, set:
 Other input and output file paths need not be changed. Once set, run `run.py`.
 
 ## Considerations
+* The output from CC consists of a `3x3` rotation matrix for w2c and the camera's `3x1` coordinates in the world coordinate system. When exporting, the camera coordinate axis orientation is selected as `opencv` (i.e., `RDF`).
+
+## Test
+
 * Dataset: Penta-Cam-Centre(8bit)
 * ROI mesh: [Image](assets/image-2.png)
 * Example of an image after visibility screening (8176 * 6132): [Image](assets/image.png)
 * Cropped ROI from the image (1200 * 1000): [Image](assets/image-1.png)
 * Obtaining parameters for the new image by scaling the scene to a sphere with a radius of 1:
+
 ```
 "file_path": "images/001_009_145000282.jpg",
 "intrinsic_matrix": [
@@ -131,4 +136,6 @@ Other input and output file paths need not be changed. Once set, run `run.py`.
 ## References
 * Dataset Information: ISPRS
 * Visualization: NeRF++
-* JSON File Format: NeRF_Studio Neuralangelo
+* JSON File Format: 
+  * NeRF_Studio 
+  * Neuralangelo
